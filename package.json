@@ -1,0 +1,31 @@
+{
+    "name": "kephas",
+    "version": "0.0.0",
+    "description": "kephas",
+    "main": "index.js",
+    "scripts": {
+        "setup": "./package/setup.sh",
+        "build": "./package/build.sh",
+        "serve": "./package/serve.sh"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "es6-map": "^0.1.4",
+        "es6-promisify": "^5.0.0",
+        "fs-extra": "^2.0.0",
+        "jsdom": "^11.1.0",
+        "koa": "^2.0.0-alpha.7",
+        "koa-bodyparser": "^3.2.0",
+        "koa-compose": "^2.5.1",
+        "koa-compress": "^2.0.0",
+        "koa-cors": "0.0.16",
+        "koa-json": "^2.0.2",
+        "koa-morgan": "^1.0.1",
+        "koa-qs": "^2.0.0",
+        "koa-router": "^7.1.0",
+        "koa-static": "^3.0.0",
+        "ramda": "^0.24.1"
+    },
+    "devDependencies": {}
+}
