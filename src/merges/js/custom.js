@@ -67,3 +67,22 @@ var dropdown_ify = function (div/*, menu*/) {
 
 	return x;
 };
+
+
+var ifys = {
+	dropdown: dropdown_ify,
+	textarea: textarea_ify,
+	input: input_ify
+};
+var activated = function (type) {
+	return R .groupBy (function (x) {
+		return x .getAttribute (type)
+	}) ([] .map .call (document .querySelectorAll ('[' + type + ']'), function (x) {
+		return replace_inplace (x, ifys [type] (x))
+	}))
+}
+var type_of = function (type) {
+	return R .groupBy (function (x) {
+		return x .getAttribute (type)
+	}) ([] .slice .call (document .querySelectorAll ('[' + type + ']')))
+}

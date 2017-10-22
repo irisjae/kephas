@@ -1,9 +1,24 @@
 var R = require ('ramda');
 
+var escape_regex = function (str) {
+  return str .replace (/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+}
+
 module .exports = function (str) {
-    return str .replace (/(<[^/>]+)(>)<div class=(?:meta|"widget\d+")>((?!<\/div>).*)<\/div>/g, function (match, open, opening, meta) {
-        return open + ' ' + meta + opening;
-    }) .replace (/<div class=(?:meta|"widget\d+")>((?!<\/div>).*)<\/div>(<[^/>]+)(>)/g, function (match, meta, open, opening) {
-        return open + ' ' + meta + opening;
+    var metas = {};
+    str = str .replace (/\.([^{]+){meta:([^;]+);/g, function (match, class_, meta) {
+        meta = meta .split ('“') .join ('"') .split ('”') .join ('"');
+        metas [class_] = meta;
+        console .log (class_, '|' , meta);
+        return match;
     });
+    [metas] .map (
+        R .forEachObjIndexed (function (meta, class_) {
+            var class_matcher = new RegExp ('(<div[^>/]* class="(?:[^"]* )?' + class_ + '(?: [^"]*)?"[^>/]*)(>)', 'g');
+            str = str .replace (class_matcher, function (match, begin, end) {
+                //console .log (class_, '|' , begin + ' ' + meta + end);
+                return begin + ' ' + meta + end;
+            })
+        }));
+    return str;
 };

@@ -2,18 +2,22 @@
 var R = require ('ramda');
 var path = require ('path');
 var jsdom = require ('jsdom');
-var frames_src = path .join (__dirname, '/../src/frames');
-var res_src = path .join (__dirname, '/../src/frames');
-var merges_src = path .join (__dirname, '/../src/merges');
-var transforms_src = path .join (__dirname, '/../src/transforms');
-var res_dist = path .join (__dirname, '/../dist');
-var add_on_src = path .join (__dirname, '/../src/add_on.html');
-var pages_src = path .join (__dirname, '/../src/ui');
-var pages_dist = path .join (__dirname, '/../dist');
+var frames_src = require ('./build/config') .path .frames .src;
+var res_src = require ('./build/config') .path .res .src;
+var merges_src = require ('./build/config') .path .merges .src;
+var transforms_src = require ('./build/config') .path .transforms .src;
+var res_dist = require ('./build/config') .path .res .dist;
+var add_on_src = require ('./build/config') .path .add_on .src;
+var pages_src = require ('./build/config') .path .pages .src;
+var pages_dist = require ('./build/config') .path .pages .dist;
 				
 				
 //utils
 var fs = require ('fs-extra');
+var files =	require ('./build/util') .files;
+var file = require ('./build/util') .file;
+var write =	require ('./build/util') .write;
+var time = require ('./build/util') .time;
 var all_files =	function (dir) {
 					var results = [];
 					var list = fs .readdirSync (dir);
@@ -37,59 +41,12 @@ var files_not =	function (extensions) {
 							return results;
 						}
 			};
-var files =	function (extension) {
-				return	function (dir) {
-							var results = [];
-							var list = fs .readdirSync (dir);
-							list .forEach (function (file) {
-								file = path .join (dir, file);
-								var stat = fs .statSync (file);
-								if (stat && stat .isDirectory ())
-									results = results .concat (files (extension) (file));
-								else if (file .endsWith (extension))
-									results .push (file);
-							});
-							return results;
-						}
-			};
-var file =	function (path) {
-				return fs .readFileSync (path) .toString ();
-			};
-var write =	function (path) {
-				return	function (string) {		
-							fs .outputFileSync (path, string);
-						}
-			};
-var time =	function (name, what) {
-				var start = new Date ();
-				try {
-					var x = what ();
-					console .log (name, 'took', (new Date () - start) / 1000, 's');
-				}
-				catch (e) {
-					if (! (e && e .reported)) {
-						console .log (name, 'failed', (new Date () - start) / 1000, 's');
-					}
-					else {
-						console .log (name, 'failed', (new Date () - start) / 1000, 's', e);
-						if (e)
-							e .reported = true;
-					}
-					throw e;
-				}
-				return x;
-			};
 
 
 //domain functions
 
 var frame_string = function (_) {
-	/*try {
-		return file (path .join (frames_src, _ + '/index.html')) .split ('styles.css') .join (_ + '/styles.css');
-	}
-	catch (e) {*/
-		return file (path .join (frames_src, _ + '.htm'));
-	//}
+	return file (path .join (frames_src, _ + '.html'));
 }					
 
 
@@ -106,7 +63,7 @@ time ('build', function () {
 		else
 			fs .unlinkSync (path .resolve (res_dist, file))
 	});
-	files_not (['.htm'/*, '.html'*/]) (res_src)
+	files_not (['.html'/*, '.html'*/]) (res_src)
 		.forEach (function (path_/* of file*/) {
 			var name = path_ .split ('/') .reverse () [0];
 			var dest_path = path .join (res_dist, name);
@@ -160,6 +117,9 @@ time ('build', function () {
 			var transform = require (path .join (transforms_src, '*.html.js'));
 			files ('.html') (pages_dist)
 				.forEach (function (object_path) {
+					var relative_path = object_path .slice (pages_dist .length + 1);
+					console .log ('transforming', relative_path);
+
 					var source = file (object_path);
 					write (object_path) (transform (source));
 				})

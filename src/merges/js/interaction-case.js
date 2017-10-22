@@ -23,7 +23,7 @@ var interaction_case = function (cases) {
                 }))
                 .map (R .forEachObjIndexed (set_nodes_visibility ('hidden')))
         }
-        cases [to] .forEach (set_nodes_visibility (''));
+        [cases [to]] .forEach (set_nodes_visibility (''));
         return only_ (to);
     }));
 }
